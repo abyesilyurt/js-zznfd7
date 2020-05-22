@@ -20,54 +20,49 @@ if (!firebase.apps.length) {
 }
 
 var db = firebase.firestore();
+var time_delta = 60 * 60*  4;
+var ts = Math.round((new Date()).getTime() / 1000) - time_delta;
+var q = db.collection("jobs").where('time', '>', ts);
 
-db.collection("jobs")
-    .onSnapshot(function(snapshot) {
-        var t = $('#table_id').DataTable();
+q.onSnapshot(function(snapshot) {
+      var t = $('#table_id').DataTable();
 
-        snapshot.docChanges().forEach(function(change) {
-            if (change.type === "added") {
-                console.log("New city: ", change.doc.data());
-                const data = change.doc.data();
-                t.row.add( 
-                  [`<button id="${data['id']}" action="expand">Details</button>
-                  <button id="${data['id']}" action="delete">Delete</button>`,
-                  //`<input type="submit" id="${data['id']}" value="Details">`+
-                   // `<input type="submit" name="${data['id']}" value="Delete">`,
-                    `<a href="https://www.freelancer.com/projects/"${data['id']} target="_blank">${data['id']}</a>`,
-                    `${data['bmin']}- ${data['bmax']} ${data['currency']}`,
-                  data['title'] ]).draw( false );
-            }
-            if (change.type === "modified") {
-                console.log("Modified city: ", change.doc.data());
-            }
-            if (change.type === "removed") {
-                console.log("Removed city: ", change.doc.data());
+      snapshot.docChanges().forEach(function(change) {
+          if (change.type === "added") {
+              console.log("New entry: ", change.doc.data());
+              const data = change.doc.data();
+              t.row.add( 
+                ['',
+                  // `<button id="${data['id']}" action="expand">Details</button>
+                  // <button id="${data['id']}" action="delete">Delete</button>`,
+                  `<a href="https://www.freelancer.com/projects/"${data['id']} target="_blank">${data['id']}</a>`,
+                  `${data['bmin']}- ${data['bmax']} ${data['currency']}`,
+                data['title'] ]).draw( false );
+          }
+          if (change.type === "modified") {
+              //console.log("Modified city: ", change.doc.data());
+          }
+          if (change.type === "removed") {
+              //console.log("Removed city: ", change.doc.data());
+          }
+      });
 
-                table.rows( function ( idx, data, node ) {
-                  //return data[0] === 3;
-                  console.log(data);
-                } );
-                //.remove().draw();
-            }
-        });
-
-        t.columns.adjust().draw();
+  t.columns.adjust().draw();
 
 
-        $("button").click(function() {
-    console.log(this.id);
-    console.log($(this).attr('action'));
+  console.log("timestamp: ", ts);
+  ts = Math.round((new Date()).getTime() / 1000) - time_delta;
+  //q = db.collection("jobs").where('time', '>', ts);
+
 });
-    });
 
 
 $(document).ready( function () {
   $('#table_id').DataTable({
+    "order": [[ 1, "desc" ]],
     responsive: true,
     //autoWidth: true
   });
-
 });
 
 
