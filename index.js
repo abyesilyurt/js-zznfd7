@@ -35,7 +35,7 @@ q.onSnapshot(function(snapshot) {
                 ['',
                   // `<button id="${data['id']}" action="expand">Details</button>
                   // <button id="${data['id']}" action="delete">Delete</button>`,
-                  `<a href="https://www.freelancer.com/projects/"${data['id']} target="_blank">${data['id']}</a>`,
+                  `<a href="https://www.freelancer.com/projects/${data['id']}" target="_blank">${data['id']}</a>`,
                   `${data['bmin']}- ${data['bmax']} ${data['currency']}`,
                 data['title'] ]).draw( false );
           }
