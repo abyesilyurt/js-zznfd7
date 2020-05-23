@@ -20,7 +20,7 @@ if (!firebase.apps.length) {
 }
 
 var db = firebase.firestore();
-var time_delta = 60 * 60*  4;
+var time_delta = 60 * 60*  8;
 var ts = Math.round((new Date()).getTime() / 1000) - time_delta;
 var q = db.collection("jobs").where('time', '>', ts);
 
