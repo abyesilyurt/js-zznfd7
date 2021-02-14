@@ -45,7 +45,8 @@ db.collection("users")
               "",
               `<a href="${data["url"]}" target="_blank">${data["id"]}</a>`,
               `${data["bmin"]}- ${data["bmax"]} ${data["currency"]}`,
-              data["title"]
+              data["title"],
+              data["preview_description"]
             ]);
           }
         });
