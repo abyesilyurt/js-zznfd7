@@ -1,11 +1,11 @@
 const firebase = require("firebase");
 require("firebase/firestore");
-import './style.css';
+import "./style.css";
 
 // init firebase
 if (!firebase.apps.length) {
-  const appDiv = document.getElementById('app');
-  appDiv.innerHTML = `<h1>JS Starter</h1>`;
+  const appDiv = document.getElementById("app");
+  appDiv.innerHTML = `<h1>Kapan</h1>`;
   const firebaseConfig = {
     apiKey: "AIzaSyCbDK---K4zfNOezXL5sHetjc5Kt_slqWc",
     authDomain: "kapan-e12cf.firebaseapp.com",
@@ -20,51 +20,44 @@ if (!firebase.apps.length) {
 }
 
 var db = firebase.firestore();
-var time_delta = 60 * 60*  8;
-var ts = Math.round((new Date()).getTime() / 1000) - time_delta;
-var q = db.collection("jobs").where('time', '>', ts);
+var time_delta = 60 * 60 * 8;
+var ts = Math.round(new Date().getTime() / 1000) - time_delta;
 
-q.onSnapshot(function(snapshot) {
-      var t = $('#table_id').DataTable();
+db.collection("users")
+  .doc("abyesilyurt")
+  .get()
+  .then(doc => {
+    const exc = doc.data()["exclude_jobs"];
+    const inc = doc.data()["include_jobs"];
 
-      snapshot.docChanges().forEach(function(change) {
-          if (change.type === "added") {
-              console.log("New entry: ", change.doc.data());
-              const data = change.doc.data();
-              t.row.add( 
-                ['',
-                  // `<button id="${data['id']}" action="expand">Details</button>
-                  // <button id="${data['id']}" action="delete">Delete</button>`,
-                  `<a href="https://www.freelancer.com/projects/${data['id']}" target="_blank">${data['id']}</a>`,
-                  `${data['bmin']}- ${data['bmax']} ${data['currency']}`,
-                data['title'] ]).draw( false );
+    db.collection("projects")
+      .where("time", ">", ts)
+      .get()
+      .then(querySnapshot => {
+        const t = $("#table_id").DataTable();
+        querySnapshot.forEach(doc => {
+          var data = doc.data();
+          const doExclude = data["jobs"].filter(value => exc.includes(value));
+          const doInclude = data["jobs"].filter(value => inc.includes(value));
+          console.log(doInclude);
+          if (doInclude.length > 0 && doExclude.length == 0) {
+            t.row.add([
+              "",
+              `<a href="${data["url"]}" target="_blank">${data["id"]}</a>`,
+              `${data["bmin"]}- ${data["bmax"]} ${data["currency"]}`,
+              data["title"]
+            ]);
           }
-          if (change.type === "modified") {
-              //console.log("Modified city: ", change.doc.data());
-          }
-          if (change.type === "removed") {
-              //console.log("Removed city: ", change.doc.data());
-          }
+        });
+        t.columns.adjust().draw();
       });
+  });
 
-  t.columns.adjust().draw();
-
-
-  console.log("timestamp: ", ts);
-  ts = Math.round((new Date()).getTime() / 1000) - time_delta;
-  //q = db.collection("jobs").where('time', '>', ts);
-
-});
-
-
-$(document).ready( function () {
-  $('#table_id').DataTable({
-    "order": [[ 1, "desc" ]],
+$(document).ready(function() {
+  $("#table_id").DataTable({
+    order: [[1, "desc"]],
     responsive: true,
+    pageLength: 50
     //autoWidth: true
   });
 });
-
-
-
-
